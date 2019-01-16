@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 import csv
 import xlrd
+from tqdm import tqdm
 
 class GdprTjekker:
     """
@@ -9,23 +10,32 @@ class GdprTjekker:
     ----------
     path : str
         Stien til den folder, som skal kigges igennem
+
+    extensions : list
+        En liste over de filformater, der skal søges efter
+    
+    search_string : str
+        Den tekst, der skal være tilstede i et filnavn (Default ingenting, dvs. der søges efter alle filer)
+
+    Returns
+    -------
+    GdprTjekker object
     
     """
 
-    def __init__(self, path):
+    def __init__(self, path, extensions, search_string=''):
         self.p = Path(path)
+        self.extensions = extensions
+        self.search_string = search_string
 
-    def get_filepaths(self, extension, search_string=''):
+    def get_filepaths(self, extension):
         """Henter alle filer, der passer til søgekriterierne
 
         Parameters
         ----------
         extension : str
             Hvilken filekstension skal der kigges efter? csv eller xlsx?
-        
-        search_string : str, optional
-            Hvad skal filnavnene indeholde? (Default er ingenting, dvs. den søger efter alle filer)
-        
+
         Returns
         -------
         list
@@ -35,7 +45,7 @@ class GdprTjekker:
         all_files = list(self.p.rglob(f'*.{extension}')) 
 
         for file in all_files:
-            if search_string in file.name.lower():
+            if self.search_string in file.name.lower():
                 results.append(file)
         
         return results
@@ -106,3 +116,15 @@ class GdprTjekker:
             Sti til den fil, der skal slettes
         """
         filepath.unlink()
+    
+    def write_to_xlsx(self, file_encoding):
+        filer = {key: None for key in self.extensions}
+
+        for filformat in self.extensions:
+            cpr_filer = []
+            files = self.get_filepaths(filformat)
+            for file in tqdm(files):
+                if self.tjek_cpr(file, file_encoding):
+                    cpr_filer.append(file)
+            filer[filformat] = pd.Series(cpr_filer)
+        pd.DataFrame.from_dict(filer).to_excel(f'{self.p}\\GDPR_Tjek.xlsx', index=False)
