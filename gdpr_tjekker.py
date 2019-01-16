@@ -118,6 +118,17 @@ class GdprTjekker:
         filepath.unlink()
     
     def write_to_xlsx(self, file_encoding):
+        """Skriver resultaterne ned i en excelfil
+
+        Parameters
+        ----------
+        file_encoding : str
+            Encoding på de filer, som skal kigges igennem.
+        
+        Returns
+        -------
+        En fil med navnet GDPR_TJEK.xlsx, som ligger i roden.
+        """
         filer = {key: None for key in self.extensions}
 
         for filformat in self.extensions:
