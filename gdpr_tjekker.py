@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 import csv
+import xlrd
 
 class GdprTjekker:
 
@@ -18,7 +19,7 @@ class GdprTjekker:
         return results
 
     def tjek_cpr(self, filepath, encoding='utf-8'):
-        if Path(filepath).suffix == '.csv':
+        if Path(filepath).suffix == '.csv' and Path(filepath).name.startswith('~') == False:
             try:
                 df = pd.read_csv(filepath, encoding=encoding, sep=None, engine='python')
                 cpr_file = False
@@ -29,8 +30,11 @@ class GdprTjekker:
                 return cpr_file
             except (pd.errors.ParserError, csv.Error) as e:
                 return e
-        elif Path(filepath).suffix == '.xlsx':
-            df = pd.read_excel(filepath)
+        elif Path(filepath).suffix == '.xlsx' and Path(filepath).name.startswith('~') == False:
+            try:
+                df = pd.read_excel(filepath)
+            except (xlrd.biffh.XLRDError, PermissionError, FileNotFoundError) as e:
+                return e
             cpr_file = False
             for col in df.columns:
                 if self.tjek_column_name(col):
