@@ -2,7 +2,8 @@ from gdpr_tjekker import GdprTjekker
 import pandas as pd
 from tqdm import tqdm
 
-tjekker = GdprTjekker(XXXXXXXXX)
+# Indsæt sti til den folder, som skal tjekkes igennem
+tjekker = GdprTjekker(STI TIL FOLDER)
 
 filformater = ['xlsx', 'csv']
 
