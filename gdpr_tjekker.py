@@ -27,10 +27,11 @@ class GdprTjekker:
     
     """
 
-    def __init__(self, path, extensions, search_string='', loglevel='WARNING'):
+    def __init__(self, path, extensions, encoding='latin1', search_string='', loglevel='WARNING'):
         self.p = Path(path)
         self.extensions = extensions
         self.search_string = search_string
+        self.encoding = encoding
         logger.add(Path.joinpath(self.p, 'GDPR_TJEK_{time:DD-MM-YY}.log'), level=loglevel, format='{level} | {time:DD-MM-YYYY kl HH:MM:ss} | {message}')
 
     def get_filepaths(self, extension):
@@ -56,16 +57,13 @@ class GdprTjekker:
         
         return results
 
-    def tjek_cpr(self, filepath, encoding='utf-8'):
+    def tjek_cpr(self, filepath):
         """Tjekker om der er en kolonne, som hedder noget med 'cpr'.
 
         Parameters
         ----------
         filepath : str
             Stien til den fil, som skal kigges i
-        
-        encoding : str
-            Den encoding, som filerne har (Default er 'utf-8')
         
         Returns
         -------
@@ -74,7 +72,7 @@ class GdprTjekker:
         """
         if Path(filepath).suffix == '.csv' and Path(filepath).name.startswith('~') == False:
             try:
-                df = pd.read_csv(filepath, encoding=encoding, sep=None, engine='python')
+                df = pd.read_csv(filepath, encoding=self.encoding, sep=None, engine='python')
                 cpr_file = False
                 for col in df.columns:
                     if self.tjek_column_name(col):
@@ -126,14 +124,9 @@ class GdprTjekker:
         filepath.unlink()
         logger.info(f'{filepath} slettet')
     
-    def write_to_xlsx(self, file_encoding):
+    def write_to_xlsx(self):
         """Skriver resultaterne ned i en excelfil
 
-        Parameters
-        ----------
-        file_encoding : str
-            Encoding på de filer, som skal kigges igennem.
-        
         Returns
         -------
         En fil med navnet GDPR_TJEK.xlsx, som ligger i roden.
@@ -144,7 +137,7 @@ class GdprTjekker:
             cpr_filer = []
             files = self.get_filepaths(filformat)
             for file in tqdm(files):
-                if self.tjek_cpr(file, file_encoding):
+                if self.tjek_cpr(file, self.encoding):
                     cpr_filer.append(file)
             filer[filformat] = pd.Series(cpr_filer)
         pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
