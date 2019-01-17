@@ -9,6 +9,7 @@ pandas = "*"
 xlrd = "*"
 tqdm = "*"
 openpyxl = "*"
+click = "*"
 
 [dev-packages]
 
