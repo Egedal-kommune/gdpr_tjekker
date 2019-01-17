@@ -3,6 +3,7 @@ import pandas as pd
 import csv
 import xlrd
 from tqdm import tqdm
+from loguru import logger
 
 class GdprTjekker:
     """
@@ -17,16 +18,20 @@ class GdprTjekker:
     search_string : str
         Den tekst, der skal være tilstede i et filnavn (Default ingenting, dvs. der søges efter alle filer)
 
+    loglevel : str
+        Logging level for den logfil. Mulige værdier er DEBUG, INFO, WARNING, ERROR og CRITICAL
+
     Returns
     -------
     GdprTjekker object
     
     """
 
-    def __init__(self, path, extensions, search_string=''):
+    def __init__(self, path, extensions, search_string='', loglevel='WARNING'):
         self.p = Path(path)
         self.extensions = extensions
         self.search_string = search_string
+        logger.add(Path.joinpath(self.p, 'GDPR_TJEK_{time:DD-MM-YY}.log'), level=loglevel, format='{level} | {time:DD-MM-YYYY kl HH:MM:ss} | {message}')
 
     def get_filepaths(self, extension):
         """Henter alle filer, der passer til søgekriterierne
@@ -41,6 +46,7 @@ class GdprTjekker:
         list
             En liste med alle de filer, der er fundet på den angivne sti
         """
+        logger.info(f'Henter liste over alle {extension} filer')
         results = []
         all_files = list(self.p.rglob(f'*.{extension}')) 
 
@@ -76,11 +82,13 @@ class GdprTjekker:
                         break
                 return cpr_file
             except (pd.errors.ParserError, csv.Error) as e:
+                logger.error(f'{filepath} kan ikke åbnes pga. {e}')
                 return e
         elif Path(filepath).suffix == '.xlsx' and Path(filepath).name.startswith('~') == False:
             try:
                 df = pd.read_excel(filepath)
             except (xlrd.biffh.XLRDError, PermissionError, FileNotFoundError) as e:
+                logger.error(f'{filepath} kan ikke åbnes pga. {e}')
                 return e
             cpr_file = False
             for col in df.columns:
@@ -116,6 +124,7 @@ class GdprTjekker:
             Sti til den fil, der skal slettes
         """
         filepath.unlink()
+        logger.info(f'{filepath} slettet')
     
     def write_to_xlsx(self, file_encoding):
         """Skriver resultaterne ned i en excelfil
@@ -139,3 +148,4 @@ class GdprTjekker:
                     cpr_filer.append(file)
             filer[filformat] = pd.Series(cpr_filer)
         pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
+        logger.info(f"{Path.joinpath(self.p, 'GDPR_Tjek.xlsx')} gemt!")
