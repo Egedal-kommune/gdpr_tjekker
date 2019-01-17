@@ -138,4 +138,4 @@ class GdprTjekker:
                 if self.tjek_cpr(file, file_encoding):
                     cpr_filer.append(file)
             filer[filformat] = pd.Series(cpr_filer)
-        pd.DataFrame.from_dict(filer).to_excel(f'{self.p}\\GDPR_Tjek.xlsx', index=False)
+        pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
