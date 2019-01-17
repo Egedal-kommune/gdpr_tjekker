@@ -32,7 +32,7 @@ class GdprTjekker:
         self.extensions = extensions
         self.search_string = search_string
         self.encoding = encoding
-        logger.add(Path.joinpath(self.p, 'GDPR_TJEK_{time:DD-MM-YY}.log'), level=loglevel, format='{level} | {time:DD-MM-YYYY kl HH:MM:ss} | {message}')
+        logger.add(Path.joinpath(self.p, 'GDPR_TJEK_{time:DD-MM-YY}.log'), level=loglevel, format='{level} | {time:DD-MM-YYYY kl HH:mm:ss} | {message}')
 
     def get_filepaths(self, extension):
         """Henter alle filer, der passer til søgekriterierne
@@ -137,7 +137,7 @@ class GdprTjekker:
             cpr_filer = []
             files = self.get_filepaths(filformat)
             for file in tqdm(files):
-                if self.tjek_cpr(file, self.encoding):
+                if self.tjek_cpr(file):
                     cpr_filer.append(file)
             filer[filformat] = pd.Series(cpr_filer)
         pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
