@@ -16,3 +16,28 @@ skriv resultatet af søgningen i en excelfil, som bliver gemt på den sti, som s
 ```Python
 sniffer.write_to_xlsx()
 ```
+
+#### CLI
+Værktøjet kan også bruges som et cli-tool.
+
+```Bash
+Usage: gdpr_tjekker_cli.py [OPTIONS] PATH [EXTENSIONS]...
+
+  Tjek efter xlsx og/eller csv filer, som indeholder cpr data. PATH er stien
+  til den folder, der skal tjekkes, og EXTENSIONS er en eller flere
+  filformater
+
+Options:
+  -e, --encoding TEXT
+  -s, --search_string TEXT
+  -l, --loglevel TEXT
+  --help                    Show this message and exit.
+```
+F.eks. hvis man vil søge igennem et drev til at finde alle excel og csv filer, der hedder noget med _Høringsliste_ i stien C:\user\desktop, så ville man skrive:
+
+```Bash
+python gdpr_tjekker_cli.py -s Høringsliste C:\user\desktop xlsx csv
+```
+Hvis man kun vil søge efter xlsx eller csv, så skriver man kun et filformat.
+
+Den kigger så stien igennem og laver to filer på C:\user\desktop. En som hedder GDPR_Tjek.xlsx og en, som hedder GDPR_TJEK_**TIDSPUNKT**.log
