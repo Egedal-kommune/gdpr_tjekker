@@ -10,6 +10,7 @@ xlrd = "*"
 tqdm = "*"
 openpyxl = "*"
 click = "*"
+requests = "*"
 
 [dev-packages]
 

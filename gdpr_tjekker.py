@@ -4,6 +4,7 @@ import csv
 import xlrd
 from tqdm import tqdm
 from loguru import logger
+import requests
 
 class GdprTjekker:
     """
@@ -142,3 +143,45 @@ class GdprTjekker:
             filer[filformat] = pd.Series(cpr_filer)
         pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
         logger.info(f"{Path.joinpath(self.p, 'GDPR_Tjek.xlsx')} gemt!")
+
+    def send_file_to_mail(self, mailgun_api_key, mailgun_domain_name, email_adress):
+        """Sender en mail til en given email adresse med resultaterne fra analysen. Man skal have en account hos Mailgun. Den er gratis.
+
+        parameters
+        ----------
+        mailgun_api_key : str
+            En api key fra Mailgun.
+
+        mailgun_domain_name : str
+            Domain name fra Mailgun.
+        
+        email_adress : str
+            Den email adresse resultaterne skal sendes til.
+        
+        Raises
+        ------
+        FileNotFoundError
+            Hvis resultat filen 'GDPR_Tjek.xlsx' ikke eksisterer, så sendes der ingen mail.
+        """
+        try: 
+            logger.info(f'Sendt til {email_adress}')
+            return requests.post(
+                f'https://api.mailgun.net/v3/{mailgun_domain_name}/messages',
+                auth=('api', mailgun_api_key),
+                data={
+                    'from': f'GDPR Tjekker <mailgun@{mailgun_domain_name}>',
+                    'to': [email_adress],
+                    'subject': f'Filer med cpr-numre i {self.p}',
+                    'text': f'''
+                        Hej.
+
+                        Her får du en liste over de excel og/eller csv filer på {self.p}, som muligvis indeholder cpr-numre.
+
+                        Hilsen
+                        GDPR Tjekkeren.
+                    '''
+                },
+                files=[('attachment', ('GDPR_Tjek.xlsx', open(Path.joinpath(self.p, 'gdpr_tjek.xlsx'), 'rb').read()))],
+            )
+        except FileNotFoundError as e:
+            logger.error(e)
