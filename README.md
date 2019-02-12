@@ -17,6 +17,11 @@ skriv resultatet af søgningen i en excelfil, som bliver gemt på den sti, som s
 sniffer.write_to_xlsx()
 ```
 
+Man kan få resultatfilen, som hedder *GDPR_Tjek.xlsx* sendt til en given mailadresse. Scriptet bruger Mailgun, som er en gratis tjeneste til at sende emails.
+```Python
+sniffer.send_file_to_mail(MAILGUN_API_KEY, MAILGUN_DOMAIN_NAME, EMAIL)
+```
+
 #### CLI
 Værktøjet kan også bruges som et cli-tool.
 
