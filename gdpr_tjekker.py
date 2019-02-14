@@ -134,15 +134,18 @@ class GdprTjekker:
         """
         filer = {key: None for key in self.extensions}
 
-        for filformat in self.extensions:
-            cpr_filer = []
-            files = self.get_filepaths(filformat)
-            for file in tqdm(files):
-                if self.tjek_cpr(file):
-                    cpr_filer.append(file)
-            filer[filformat] = pd.Series(cpr_filer)
-        pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
-        logger.info(f"{Path.joinpath(self.p, 'GDPR_Tjek.xlsx')} gemt!")
+        try:
+            for filformat in self.extensions:
+                cpr_filer = []
+                files = self.get_filepaths(filformat)
+                for file in tqdm(files):
+                    if self.tjek_cpr(file):
+                        cpr_filer.append(file)
+                filer[filformat] = pd.Series(cpr_filer)
+            pd.DataFrame.from_dict(filer).to_excel(Path.joinpath(self.p, 'GDPR_Tjek.xlsx'), index=False)
+            logger.info(f"{Path.joinpath(self.p, 'GDPR_Tjek.xlsx')} gemt!")
+        except Exception as e:
+            logger.error(e)
 
     def send_file_to_mail(self, mailgun_api_key, mailgun_domain_name, email_adress):
         """Sender en mail til en given email adresse med resultaterne fra analysen. Man skal have en account hos Mailgun. Den er gratis.
