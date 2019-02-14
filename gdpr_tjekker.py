@@ -33,7 +33,6 @@ class GdprTjekker:
         self.extensions = extensions
         self.search_string = search_string
         self.encoding = encoding
-        logger.add(Path.joinpath(self.p, 'GDPR_TJEK_{time:DD-MM-YY}.log'), level=loglevel, format='{level} | {time:DD-MM-YYYY kl HH:mm:ss} | {message}')
 
     def get_filepaths(self, extension):
         """Henter alle filer, der passer til søgekriterierne
@@ -48,7 +47,7 @@ class GdprTjekker:
         list
             En liste med alle de filer, der er fundet på den angivne sti
         """
-        logger.info(f'Henter liste over alle {extension} filer')
+        logger.info(f'Henter liste over alle {extension} filer i {self.p}')
         results = []
         all_files = list(self.p.rglob(f'*.{extension}')) 
 
