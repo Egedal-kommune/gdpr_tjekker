@@ -36,6 +36,7 @@ Options:
   -e, --encoding TEXT
   -s, --search_string TEXT
   -l, --loglevel TEXT
+  -m, --email TEXT
   --help                    Show this message and exit.
 ```
 F.eks. hvis man vil søge igennem et drev til at finde alle excel og csv filer, der hedder noget med _Høringsliste_ i stien C:\user\desktop, så ville man skrive:
@@ -46,3 +47,5 @@ python gdpr_tjekker_cli.py -s Høringsliste C:\user\desktop xlsx csv
 Hvis man kun vil søge efter xlsx eller csv, så skriver man kun et filformat.
 
 Den kigger så stien igennem og laver to filer på C:\user\desktop. En som hedder GDPR_Tjek.xlsx og en, som hedder GDPR_TJEK_**TIDSPUNKT**.log
+##### Sende til en mailadresse
+Hvis man vil sende resultatet af GDPR tjekket til sin mail, så skal man sætte op en Mailgun konto, og tilføje email adressen til _Authorized recipients_. 
